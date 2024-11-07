@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 cc_binary(
     name = "pybind_aes.so",
-    srcs = ["aes_encryption.cpp"],
+    srcs = ["aes.cpp"],
     linkshared = 1,
     linkstatic = 1,
     linkopts = [
