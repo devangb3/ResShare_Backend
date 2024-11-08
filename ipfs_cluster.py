@@ -86,18 +86,18 @@ def get_file_status(cid):
 
 
 def download_file_from_ipfs(cid, save_path):
-    """
-    Downloads a file from IPFS and saves it locally.
-
-    :param cid: The CID of the file to download.
-    :param save_path: The local path to save the downloaded file.
-    """
     if ipfs_cluster_api_url is None or ipfs_gateway_url is None:
         read_config_file()
 
-    url = f"{ipfs_cluster_api_url}ipfs/{cid}"
+    # Print the configuration to verify
+    print(f"IPFS Cluster API URL: {ipfs_cluster_api_url}")
+    print(f"IPFS Gateway URL: {ipfs_gateway_url}")
+
+    url = f"{ipfs_gateway_url}ipfs/{cid}"
+    print(f"Download URL: {url}")
+
     try:
-        response = requests.get(url, stream=True)
+        response = requests.get(url, stream=True, timeout=10)
         if response.status_code == 200:
             with open(save_path, "wb") as file:
                 for chunk in response.iter_content(chunk_size=8192):
@@ -126,7 +126,7 @@ def list_pinned_files():
             pinned_files = response.json()
             for info in pinned_files:
                 print(f"{info}")
-            return pinned_files
+            return pinned_files[0]
         else:
             print(f"Failed to retrieve pinned files. Status code: {response.status_code}")
             print(response.text)
@@ -140,7 +140,7 @@ def list_all_peers():
 
     :return: A list of information about all peers if successful, otherwise None.
     """
-    if ipfs_cluster_api_url == None or ipfs_gateway_url == None:
+    if ipfs_cluster_api_url is None or ipfs_gateway_url is None:
         read_config_file()
 
     url = f"{ipfs_cluster_api_url}/peers"
@@ -156,7 +156,7 @@ def list_all_peers():
                 print("Addresses:")
                 for address in addresses:
                     print(f"  - {address}")
-            return peers_info
+            return peers_info[0]
         else:
             print(f"Failed to retrieve peers info. Status code: {response.status_code}")
             print(response.text)
@@ -164,5 +164,15 @@ def list_all_peers():
         print(f"Error connecting to IPFS Cluster API: {e}")
 
 
+# cid = add_file_to_cluster("test.txt")
+# print(cid)
 
+# pin_file("QmVGp7rNegQrd86YNViYzuLMBYPHiqE3usij9AuZAJzdSn", 1, 10)
 
+# get_file_status("QmVGp7rNegQrd86YNViYzuLMBYPHiqE3usij9AuZAJzdSn")
+
+# download_file_from_ipfs("QmVGp7rNegQrd86YNViYzuLMBYPHiqE3usij9AuZAJzdSn", "test2.txt")
+
+# list_pinned_files()
+res = list_all_peers()
+print(res)
