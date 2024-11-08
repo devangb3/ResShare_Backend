@@ -153,12 +153,14 @@ def list_pinned_files():
                                             '12D3KooWEhnfrehv1ot3SmFfoQuNFrYi275BHi3eBBQ7CVHFQnMD': {
                                                                                                         'peername': 'cluster2',
                                                                                                         'status': 'pinned',
-                                                                                                        'timestamp': '2024-11-08T03:34:42.818075701Z',                                                                                                             'error': ''
+                                                                                                        'timestamp': '2024-11-08T03:34:42.818075701Z',
+                                                                                                        'error': ''
                                                                                                     },
                                             '12D3KooWHYr7SoHVDLHHbvKu8SzwXXTvZ7UqY3Z4D5iXfcPDzEDU': {
                                                                                                         'peername': 'cluster3',
                                                                                                         'status': 'pinned',
-                                                                                                        'timestamp': '2024-11-08T03:34:42.815509853Z',                                                                                                             'error': ''
+                                                                                                        'timestamp': '2024-11-08T03:34:42.815509853Z',
+                                                                                                        'error': ''
                                                                                                     }
                                         }
                         },
