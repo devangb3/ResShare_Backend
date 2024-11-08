@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath("bazel/bazel-bin/aes/"))
 import pybind_aes
 
 def encrypt_file(file_path: str, key: str = None):
-    if key == None:
+    if key is None:
         key = pybind_aes.aes_key_generate()
     pybind_aes.aes_file_encrypt(file_path, key)
     return key
