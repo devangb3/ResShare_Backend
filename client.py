@@ -105,7 +105,7 @@ def get_all_pinned_file():
     """
     This will return all pinned file info in the cluster
 
-    :return python dict
+    :return python array
     :return format: [
                         {
                             'cid': {'/': 'QmVGp7rNegQrd86YNViYzuLMBYPHiqE3usij9AuZAJzdSn'},
