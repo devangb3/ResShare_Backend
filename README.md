@@ -12,6 +12,8 @@ Version 3.8
 
 `pip install request`
 
+`pip install os`
+
 ## Build
 `cd bazel`
 
