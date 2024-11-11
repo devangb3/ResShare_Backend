@@ -1,20 +1,33 @@
 # ResShare_Backend
 
-## C++
-`sudo apt install openssl`
+This is the backend for the ResShare application.
 
-`sudo apt install libssl-dev`
+## Prerequisites
 
-## Python
-Version 3.8
+### C++
+- OpenSSL
+- libssl-dev
 
-`pip install pybind11`
+### Python
+- Python 3.8
 
-`pip install request`
+## Installation
 
-`pip install os`
+1. Install C++ dependencies:
 
-## Build
-`cd bazel`
+sudo apt install openssl
+sudo apt install libssl-dev
+text
 
-`bazel build //...`
+2. Install Python dependencies:
+
+pip install -r requirements.txt
+text
+
+## Building the Project
+
+To build the project, navigate to the bazel directory and run:
+
+
+cd bazel
+bazel build //...
