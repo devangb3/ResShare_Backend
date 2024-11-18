@@ -3,8 +3,6 @@ import ipfs_cluster as ipfs
 import json
 import os
 
-from kv_service import set_kv
-
 # Global variable
 my_ipfs_cluster_id = ipfs.get_my_peer_id()
 
@@ -342,6 +340,13 @@ def remove_favorite_peer(peer_id) -> dict:
 
 
 def get_my_favorite_peer() -> dict:
+    """
+    This function will get all favorite peers
+    This function should be called only once at initial loading
+
+    :return a python dict after modification
+    :return format: Please follow add_favorite_peer() return format
+    """
     my_favorite_list = kv.get_kv(my_ipfs_cluster_id + " FAVORITE")
     try:
         my_favorite_list = json.loads(my_favorite_list)
