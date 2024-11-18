@@ -177,3 +177,28 @@ def get_my_peer_id():
 
 
 
+def get_peer_name(peer_id):
+    """
+    Fetch the peer name of a specific peer by its ID.
+
+    :param api_url: The base URL of the IPFS Cluster API.
+    :param peer_id: The peer ID of the target node.
+    :return: The peer name if found, otherwise None.
+    """
+    url = f"{ipfs_cluster_api_url}/peers"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            peers = response.json()
+            for peer in peers:
+                if peer["id"] == peer_id:
+                    return peer.get("peername", "Unknown Peername")
+            print(f"Peer ID {peer_id} not found in the cluster.")
+        else:
+            print(f"Failed to fetch peers. Status code: {response.status_code}")
+            print(response.text)
+    except Exception as e:
+        print(f"Error fetching peername: {e}")
+    return None
+
+

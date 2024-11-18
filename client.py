@@ -3,7 +3,7 @@ import ipfs_cluster as ipfs
 import json
 import os
 
-from kv_service import get_kv
+from kv_service import set_kv
 
 # Global variable
 my_ipfs_cluster_id = ipfs.get_my_peer_id()
@@ -258,6 +258,90 @@ def get_all_file():
     for peer in peers:
         res[peer] = get_other_peer_file_structure(peer)
     return res
+
+
+def add_favorite_peer(peer_id: str, nickname: str) -> dict:
+    """
+    This function allows user to add their favorite peers, make sure that user can find the file faster
+    :param peer_id: The peer id that user wan to add
+    :param nickname: The nickname user wants to assign to this peer id.
+
+    :return a python dict of the modification
+    :return format  {
+                        PEER_ID_1(str): {
+                                            'nickname': NICKNAME_1(str),
+                                            'peer_name': PEER_NAME_1(str)(Peer name is the PEER_ID's corresponding name)
+                                        },
+                        PEER_ID_2(str): {
+                                            'nickname': NICKNAME_2(str),
+                                            'peer_name': PEER_NAME_2(str)(Peer name is the PEER_ID's corresponding name)
+                                        },
+                    }
+    """
+    my_favorite_list = kv.get_kv(my_ipfs_cluster_id + " FAVORITE")
+    peer_name = ipfs.get_peer_name(peer_id)
+    try:
+        my_favorite_list = json.loads(my_favorite_list)
+    except:
+        print("Your favorite peer list is currently empty or broken, creating a new one.")
+        my_favorite_list = {}
+
+    my_favorite_list[peer_id] = {'nickname': nickname, 'peer_name': peer_name}
+
+    kv.set_kv(my_ipfs_cluster_id + " FAVORITE", json.dumps(my_favorite_list))
+    return my_favorite_list
+
+
+def change_nickname(peer_id: str, new_nickname: str) -> dict:
+    """
+    This function allows user to change the peer name of their favorite peers
+
+    :param peer_id: The target peer id that user want to change the nickname
+    :param new_nickname: The new nickname user want to assign
+
+    :return a python dict after modification
+    :return format: Please follow add_favorite_peer() return format
+    """
+
+    my_favorite_list = kv.get_kv(my_ipfs_cluster_id + " FAVORITE")
+    try:
+        my_favorite_list = json.loads(my_favorite_list)
+    except:
+        print("Your favorite peer list is currently empty or broken, creating a new one.")
+        return {}
+
+    my_favorite_list[peer_id]['nickname'] = new_nickname
+    kv.set_kv(my_ipfs_cluster_id + " FAVORITE", json.dumps(my_favorite_list))
+
+    return my_favorite_list
+
+
+
+def remove_favorite_peer(peer_id) -> dict:
+    """
+    This function allows user to delete one of their favorite peers
+
+    :param peer_id: The target peer id that user want to delete
+
+    :return a python dict after modification
+    :return format: Please follow add_favorite_peer() return format
+    """
+    my_favorite_list = kv.get_kv(my_ipfs_cluster_id + " FAVORITE")
+    try:
+        my_favorite_list = json.loads(my_favorite_list)
+    except:
+        print("Your favorite peer list is currently empty or broken, creating a new one.")
+        return {}
+
+    try:
+        del my_favorite_list[peer_id]
+        return my_favorite_list
+    except:
+        print(f"{peer_id} not found.")
+        return my_favorite_list
+
+
+
 
 
 
