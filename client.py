@@ -316,7 +316,6 @@ def change_nickname(peer_id: str, new_nickname: str) -> dict:
     return my_favorite_list
 
 
-
 def remove_favorite_peer(peer_id) -> dict:
     """
     This function allows user to delete one of their favorite peers
@@ -335,15 +334,21 @@ def remove_favorite_peer(peer_id) -> dict:
 
     try:
         del my_favorite_list[peer_id]
+        kv.set_kv(my_ipfs_cluster_id + " FAVORITE", json.dumps(my_favorite_list))
         return my_favorite_list
     except:
         print(f"{peer_id} not found.")
         return my_favorite_list
 
 
-
-
-
+def get_my_favorite_peer() -> dict:
+    my_favorite_list = kv.get_kv(my_ipfs_cluster_id + " FAVORITE")
+    try:
+        my_favorite_list = json.loads(my_favorite_list)
+        return my_favorite_list
+    except:
+        print("Your favorite peer list is currently empty or broken, creating a new one.")
+        return {}
 
 
 
