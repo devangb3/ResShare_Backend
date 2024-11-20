@@ -34,7 +34,7 @@ To build the project, navigate to the bazel directory and run:
 
 cd bazel
 `
-bazel build //aes:pybind_aes_so \
+bazel build //... \
     --action_env=CC=/usr/bin/gcc-11 \
     --action_env=CXX=/usr/bin/g++-11 \
     --cxxopt="-std=c++17"
