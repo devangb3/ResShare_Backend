@@ -4,8 +4,9 @@ This is the backend for the ResShare application.
 
 ## Prerequisites
 
-### GCC
-- GCC version 11
+### GCC and G++
+- `sudo apt install gcc-11`
+- `sudo apt install g++-11`
 
 ### C++
 - OpenSSL
@@ -32,7 +33,12 @@ To build the project, navigate to the bazel directory and run:
 
 
 cd bazel
-bazel build //...
+`
+bazel build //aes:pybind_aes_so \
+    --action_env=CC=/usr/bin/gcc-11 \
+    --action_env=CXX=/usr/bin/g++-11 \
+    --cxxopt="-std=c++17"
+`
 
 ## Run the Flask Server: Start the Flask server to verify that it is running correctly.
 
