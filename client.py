@@ -45,6 +45,35 @@ def upload_file(file_path: str):
     my_file_structure[cid] = new_file_info
     kv.set_kv(my_ipfs_cluster_id, json.dumps(my_file_structure))
 
+    #Seperate KV pair for Delete File
+    
+    delete_file_structure = kv.get_kv(cid)
+    try:
+        parsed = json.loads(delete_file_structure)
+        
+        result = {}
+        for outer_key, inner_dict in parsed.items():
+            result[outer_key] = {}
+            for inner_key, value in inner_dict.items():
+                result[outer_key][inner_key] = value
+        
+        delete_file_structure = result
+    except json.JSONDecodeError:
+        print("Delete File structure is not valid JSON")
+        delete_file_structure = {}
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        delete_file_structure = {}
+
+    # Now delete_file_structure has the desired format
+    print(delete_file_structure)
+
+    if cid not in delete_file_structure:
+        delete_file_structure[cid] = {my_ipfs_cluster_id: False}
+    else:
+        delete_file_structure[cid][my_ipfs_cluster_id] = False
+    
+    kv.set_kv(cid, json.dumps(delete_file_structure))
 
 def download_file(cid: str, file_path: str):
     """
@@ -355,5 +384,66 @@ def get_my_favorite_peer() -> dict:
         print("Your favorite peer list is currently empty or broken, creating a new one.")
         return {}
 
+def delete_file(cid:str) -> bool:
+    global my_ipfs_cluster_id
+    delete_file_structure = kv.get_kv(cid)
+    try:
+        # Parse the JSON string
+        parsed = json.loads(delete_file_structure)
+        
+        # Restructure the data
+        result = {}
+        for outer_key, inner_dict in parsed.items():
+            result[outer_key] = {}
+            for inner_key, value in inner_dict.items():
+                result[outer_key][inner_key] = value
+        
+        # Now result has the structure you want
+        delete_file_structure = result
+    except json.JSONDecodeError:
+        print("Delete File structure is not valid JSON")
+        delete_file_structure = {}
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        delete_file_structure = {}
 
 
+    if cid not in delete_file_structure:
+        print(f"File with CID {cid} not found")
+        return False
+    
+    if my_ipfs_cluster_id not in delete_file_structure[cid]:
+        print(f"Peer {my_ipfs_cluster_id} does not have access to this file for deletion")
+        return False
+        # Get all peer values for this CID
+    delete_file_structure[cid][my_ipfs_cluster_id] = True
+    try:
+        kv.set_kv(cid, json.dumps(delete_file_structure))
+    except Exception as e:
+        print(f"Error updating ResilientDB: {str(e)}")
+        return False
+    peer_values = delete_file_structure[cid]
+    
+    # Check if all peers have marked it as True
+    all_peers_true = all(value for value in peer_values.values())
+    if all_peers_true:
+        try:
+            # Remove from IPFS cluster
+            ipfs.remove_file_from_cluster(cid)
+            
+            # Remove from our structure
+            del delete_file_structure[cid]
+            
+            # Update ResilientDB
+            kv.set_kv(cid, json.dumps(delete_file_structure))
+            
+            print(f"Successfully deleted file with CID {cid}")
+            return True
+            
+        except Exception as e:
+            print(f"Error deleting file: {str(e)}")
+            return False
+    else:
+        print("Cannot delete file: Not all peers have marked it as True")
+        return False
+    
