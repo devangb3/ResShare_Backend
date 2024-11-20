@@ -34,10 +34,7 @@ To build the project, navigate to the bazel directory and run:
 
 cd bazel
 `
-bazel build //... \
-    --action_env=CC=/usr/bin/gcc-11 \
-    --action_env=CXX=/usr/bin/g++-11 \
-    --cxxopt="-std=c++17"
+bazel build //... --action_env=CC=/usr/bin/gcc-11 --action_env=CXX=/usr/bin/g++-11 --cxxopt="-std=c++17"
 `
 
 ## Run the Flask Server: Start the Flask server to verify that it is running correctly.
