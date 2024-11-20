@@ -4,6 +4,9 @@ This is the backend for the ResShare application.
 
 ## Prerequisites
 
+### GCC
+- GCC version 11
+
 ### C++
 - OpenSSL
 - libssl-dev
