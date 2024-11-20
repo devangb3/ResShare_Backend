@@ -32,10 +32,21 @@ pip install -r requirements.txt
 To build the project, navigate to the bazel directory and run:
 
 
-cd bazel
+
+### For Ubuntu 24
+`cd bazel`
+
+
 `
 bazel build //... --action_env=CC=/usr/bin/gcc-11 --action_env=CXX=/usr/bin/g++-11 --cxxopt="-std=c++17"
 `
+
+### For Ubuntu 22
+`cd bazel`
+
+
+`bazel build //...`
+
 
 ## Run the Flask Server: Start the Flask server to verify that it is running correctly.
 
