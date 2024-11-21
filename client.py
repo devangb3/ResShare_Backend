@@ -81,7 +81,7 @@ def download_file(cid: str, file_path: str):
     :param cid: The file CID that user wants to download
     :param file_path: The file path where user wants to save the file(include file name suche like test.txt)
     """
-    ipfs.download_file_from_ipfs(cid, file_path)
+    return ipfs.download_file_from_ipfs(cid, file_path)
 
 
 def get_all_peers():
@@ -388,17 +388,14 @@ def delete_file(cid:str) -> bool:
     global my_ipfs_cluster_id
     delete_file_structure = kv.get_kv(cid)
     try:
-        # Parse the JSON string
         parsed = json.loads(delete_file_structure)
         
-        # Restructure the data
         result = {}
         for outer_key, inner_dict in parsed.items():
             result[outer_key] = {}
             for inner_key, value in inner_dict.items():
                 result[outer_key][inner_key] = value
         
-        # Now result has the structure you want
         delete_file_structure = result
     except json.JSONDecodeError:
         print("Delete File structure is not valid JSON")
@@ -415,7 +412,6 @@ def delete_file(cid:str) -> bool:
     if my_ipfs_cluster_id not in delete_file_structure[cid]:
         print(f"Peer {my_ipfs_cluster_id} does not have access to this file for deletion")
         return False
-        # Get all peer values for this CID
     delete_file_structure[cid][my_ipfs_cluster_id] = True
     try:
         kv.set_kv(cid, json.dumps(delete_file_structure))
@@ -424,17 +420,13 @@ def delete_file(cid:str) -> bool:
         return False
     peer_values = delete_file_structure[cid]
     
-    # Check if all peers have marked it as True
     all_peers_true = all(value for value in peer_values.values())
     if all_peers_true:
         try:
-            # Remove from IPFS cluster
             ipfs.remove_file_from_cluster(cid)
             
-            # Remove from our structure
             del delete_file_structure[cid]
             
-            # Update ResilientDB
             kv.set_kv(cid, json.dumps(delete_file_structure))
             
             print(f"Successfully deleted file with CID {cid}")

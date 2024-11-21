@@ -102,11 +102,15 @@ def download_file_from_ipfs(cid, save_path):
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
             print(f"File downloaded successfully and saved to {save_path}")
+            return {"success": True, "message": f"File downloaded successfully and saved to {save_path}"}
         else:
-            print(f"Failed to download file. Status code: {response.status_code}")
-            print(response.text)
+            error_message = f"Failed to download file. Status code: {response.status_code}. Response: {response.text}"
+            print(error_message)
+            return {"success": False, "message": error_message}
     except requests.exceptions.RequestException as e:
-        print(f"Error downloading file from IPFS: {e}")
+        error_message = f"Error downloading file from IPFS: {e}"
+        print(error_message)
+        return {"success": False, "message": error_message}
 
 
 def list_pinned_files():

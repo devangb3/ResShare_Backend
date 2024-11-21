@@ -25,8 +25,11 @@ def download_file():
     file_path = os.path.join(downloads_folder, filename)
     
     os.makedirs(downloads_folder, exist_ok=True)
-    client.download_file(cid, file_path)
-    return jsonify({"status": "File downloaded successfully"}), 200
+    result = client.download_file(cid, file_path)
+    if result['success']:
+        return jsonify({"status": "success", "message": result['message']}), 200
+    else:
+        return jsonify({"status": "failure", "message": result['message']}), 500
 
 @app.route('/peers', methods=['GET'])
 def get_all_peers():
@@ -72,6 +75,121 @@ def delete_file():
         return jsonify({"status": "File delete successfully"}), 200
     return jsonify({"status": "File delete unsuccessful"}), 400
 
+@app.route('/fav_peers', methods=['GET'])
+def get_favorite_peers():
+
+    try:
+        favorite_peers = client.get_my_favorite_peer()
+        
+        return jsonify({
+            "status": "success",
+            "data": favorite_peers
+        }), 200
+    except Exception as e:
+        print(f"Error fetching favorite peers: {e}")
+        
+        return jsonify({
+            "status": "error",
+            "message": "Failed to fetch favorite peers."
+        }), 500
+
+@app.route('/add_fav_peers', methods=['POST'])
+def add_favorite_peer_controller():
+    try:
+        request_data = request.get_json()
+
+        if not request_data:
+            return jsonify({
+                "status": "error",
+                "message": "Invalid input. JSON payload expected."
+            }), 400
+        
+        peer_id = request_data.get('peer_id')
+        nickname = request_data.get('nickname')
+
+        if not peer_id or not nickname:
+            return jsonify({
+                "status": "error",
+                "message": "Both 'peer_id' and 'nickname' are required."
+            }), 400
+
+        updated_favorite_list = client.add_favorite_peer(peer_id, nickname)
+
+        return jsonify({
+            "status": "success",
+            "data": updated_favorite_list
+        }), 200
+
+    except Exception as e:
+        print(f"Error adding favorite peer: {e}")
+        
+        return jsonify({
+            "status": "error",
+            "message": "Failed to add favorite peer."
+        }), 500
+
+@app.route('/rename_fav_peers/<peer_id>', methods=['PUT'])
+def change_nickname_controller(peer_id):
+
+    try:
+        request_data = request.get_json()
+
+        if not request_data:
+            return jsonify({
+                "status": "error",
+                "message": "Invalid input. JSON payload expected."
+            }), 400
+        
+        new_nickname = request_data.get('new_nickname')
+
+        if not new_nickname:
+            return jsonify({
+                "status": "error",
+                "message": "The 'new_nickname' field is required."
+            }), 400
+
+        updated_favorite_list = client.change_nickname(peer_id, new_nickname)
+
+        return jsonify({
+            "status": "success",
+            "data": updated_favorite_list
+        }), 200
+
+    except KeyError:
+        return jsonify({
+            "status": "error",
+            "message": f"No peer found with ID {peer_id}."
+        }), 404
+    except Exception as e:
+        print(f"Error changing nickname: {e}")
+        return jsonify({
+            "status": "error",
+            "message": "Failed to change nickname."
+        }), 500
+
+@app.route('/remove_fav_peers/<peer_id>', methods=['DELETE'])
+def remove_favorite_peer_controller(peer_id):
+    try:
+        updated_favorite_list = client.remove_favorite_peer(peer_id)
+
+        if peer_id not in updated_favorite_list:
+            return jsonify({
+                "status": "success",
+                "message": f"Peer {peer_id} successfully removed.",
+                "data": updated_favorite_list
+            }), 200
+        else:
+            return jsonify({
+                "status": "error",
+                "message": f"Failed to remove peer {peer_id}. Peer might not exist."
+            }), 400
+
+    except Exception as e:
+        print(f"Error removing favorite peer: {e}")
+        return jsonify({
+            "status": "error",
+            "message": "Failed to remove favorite peer."
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
