@@ -398,7 +398,8 @@ def delete_file(cid:str) -> bool:
         
         delete_file_structure = result
     except json.JSONDecodeError:
-        print("Delete File structure is not valid JSON")
+        if delete_file_structure != "":
+            print("Delete File structure is not valid JSON")
         delete_file_structure = {}
     except Exception as e:
         print(f"An error occurred: {e}")
