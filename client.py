@@ -384,7 +384,7 @@ def get_my_favorite_peer() -> dict:
         print("Your favorite peer list is currently empty or broken, creating a new one.")
         return {}
 
-def delete_file(cid:str) -> bool:
+def delete_file(cid:str) -> str:
     global my_ipfs_cluster_id
     delete_file_structure = kv.get_kv(cid)
     try:
@@ -407,18 +407,15 @@ def delete_file(cid:str) -> bool:
 
 
     if cid not in delete_file_structure:
-        print(f"File with CID {cid} not found")
-        return False
+        return f"File with CID {cid} not found"
     
     if my_ipfs_cluster_id not in delete_file_structure[cid]:
-        print(f"Peer {my_ipfs_cluster_id} does not have access to this file for deletion")
-        return False
+        return f"Peer {my_ipfs_cluster_id} does not have access to this file for deletion"
     delete_file_structure[cid][my_ipfs_cluster_id] = True
     try:
         kv.set_kv(cid, json.dumps(delete_file_structure))
     except Exception as e:
-        print(f"Error updating ResilientDB: {str(e)}")
-        return False
+        return f"Error updating ResilientDB: {str(e)}"
     peer_values = delete_file_structure[cid]
     
     all_peers_true = all(value for value in peer_values.values())
@@ -431,12 +428,10 @@ def delete_file(cid:str) -> bool:
             kv.set_kv(cid, json.dumps(delete_file_structure))
             
             print(f"Successfully deleted file with CID {cid}")
-            return True
+            return "File deleted successfully"
             
         except Exception as e:
-            print(f"Error deleting file: {str(e)}")
-            return False
+            return f"Error deleting file: {str(e)}"
     else:
-        print("Cannot delete file: Not all peers have marked it as True")
-        return False
+        return "Cannot delete file: Not all peers have marked it as True"
     

@@ -80,9 +80,8 @@ def get_all_files():
 def delete_file():
     data = request.json
     cid = data.get('cid')
-    if client.delete_file(cid):
-        return jsonify({"status": "File delete successfully"}), 200
-    return jsonify({"status": "File delete unsuccessful"}), 400
+    deletion_status = client.delete_file(cid)
+    return jsonify({"status": deletion_status}), 200
 
 @app.route('/fav_peers', methods=['GET'])
 def get_favorite_peers():
