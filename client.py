@@ -281,9 +281,25 @@ def get_all_file():
                     }
     """
     peers = get_all_peers()["cluster_peers"]
-    res = {}
+    all_files = {}
     for peer in peers:
-        res[peer] = get_other_peer_file_structure(peer)
+        all_files[peer] = get_other_peer_file_structure(peer)
+
+    unique_files = {}
+
+    for peer_id, files in all_files.items():
+        if files:  
+            for cid, file_info in files.items():
+                cid_data = kv.get_kv(cid)
+                if cid not in unique_files and  cid_data and cid_data != "{}":
+                    unique_files[cid] = {
+                        'peerID': peer_id,
+                        'fileName': file_info.get('file_name'),
+                        'fileSize': file_info.get('file_size'),
+                        'CID': cid
+                    }
+
+    res = list(unique_files.values())
     return res
 
 

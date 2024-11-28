@@ -55,22 +55,7 @@ def get_other_peer_file_structure(peer_id):
 def get_all_files():
     all_files = client.get_all_file()
     
-    unique_files = {}
-
-    for peer_id, files in all_files.items():
-        if files:  
-            for cid, file_info in files.items():
-                if cid not in unique_files:
-                    unique_files[cid] = {
-                        'peerID': peer_id,
-                        'fileName': file_info.get('file_name'),
-                        'fileSize': file_info.get('file_size'),
-                        'CID': cid
-                    }
-
-    formatted_files = list(unique_files.values())
-
-    return jsonify({"data": formatted_files}), 200
+    return jsonify({"data": all_files}), 200
 
 @app.route('/delete', methods=['POST'])
 def delete_file():
