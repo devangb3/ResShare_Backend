@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import client
 import os
+from datetime import datetime
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -20,7 +21,10 @@ def download_file():
     
     downloads_folder = os.path.join(home_dir, 'Downloads')
     
-    filename = f"{cid}.file" 
+    # saving file along with timestamp
+    current_timestamp = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    filename = f"({current_timestamp}) {data.get('filename')}"
+
     
     file_path = os.path.join(downloads_folder, filename)
     
@@ -61,9 +65,8 @@ def get_all_files():
 def delete_file():
     data = request.json
     cid = data.get('cid')
-    if client.delete_file(cid):
-        return jsonify({"status": "File delete successfully"}), 200
-    return jsonify({"status": "File delete unsuccessful"}), 400
+    deletion_status = client.delete_file(cid)
+    return jsonify({"status": deletion_status}), 200
 
 @app.route('/fav_peers', methods=['GET'])
 def get_favorite_peers():
