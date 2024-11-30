@@ -184,5 +184,11 @@ def remove_favorite_peer_controller(peer_id):
             "message": "Failed to remove favorite peer."
         }), 500
 
+
+@app.route('/dashboard/file-stats', methods=['GET'])
+def get_dashboard_stats():
+    dashboard_data = client.fetch_dashboard_data()
+    
+    return jsonify({"data": dashboard_data}), 200
 if __name__ == '__main__':
     app.run(debug=True)

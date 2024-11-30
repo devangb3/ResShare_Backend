@@ -67,4 +67,5 @@ python3 controller.py
 10) Get favorite peers :  curl -X GET http://127.0.0.1:5000/fav_peers
 11) Edit Favorite Peer Nickame : curl -X PUT "http://127.0.0.1:5000/rename_fav_peers/12D3KooWHYr7SoHVDLHHbvKu8SzwXXTvZ7UqY3Z4D5iXfcPDzEDU" -H "Content-Type: application/json" -d '{"new_nickname": "UpdatedNickname"}'
 12) Remove Peer : curl -X DELETE "http://127.0.0.1:5000/remove_fav_peers/12D3KooWHYr7SoHVDLHHbvKu8SzwXXTvZ7UqY3Z4D5iXfcPDzEDU" -H "Content-Type: application/json"
+13) Get Dashboard Data: curl -X GET http://localhost:5000/dashboard/file-stats
 

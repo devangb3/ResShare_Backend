@@ -2,7 +2,8 @@ import kv_service as kv
 import ipfs_cluster as ipfs
 import json
 import os
-
+import mimetypes
+from datetime import datetime
 # Global variable
 my_ipfs_cluster_id = ipfs.get_my_peer_id()
 
@@ -36,7 +37,7 @@ def upload_file(file_path: str):
         my_file_structure = {}
 
     # Generate metadata of this file
-    new_file_info = {'file_name': os.path.basename(file_path), 'file_size': os.path.getsize(file_path)}
+    new_file_info = {'file_name': os.path.basename(file_path), 'file_size': os.path.getsize(file_path), 'timestamp': datetime.now().strftime("%Y-%m-%d-%H:%M:%S")}
 
     # Send to IPFS cluster and get CID
     cid = ipfs.add_file_to_cluster(file_path)
@@ -303,6 +304,7 @@ def get_all_file():
     return res
 
 
+
 def add_favorite_peer(peer_id: str, nickname: str) -> dict:
     """
     This function allows user to add their favorite peers, make sure that user can find the file faster
@@ -463,4 +465,115 @@ def delete_file(cid:str) -> str:
             return f"Error deleting file: {str(e)}"
     else:
         return "Cannot delete file: Not all peers have marked it as True"
+    
+def fetch_dashboard_data():
+    """
+    Retrieve comprehensive file and peer statistics for dashboard.
+    
+    Returns:
+            dict: A comprehensive dashboard statistics dictionary with the following structure:
+            {
+                'peers_count' (int): Total number of unique peers in the cluster,
+                'files_count' (int): Total number of unique files across all peers,
+                'file_types' (dict): Breakdown of file types:
+                    {
+                        'videos' (int): Number of video files,
+                        'photos' (int): Number of photo files,
+                        'others' (int): Number of files not categorized as video or photo
+                    },
+                'files_with_timestamp' (list): Detailed file information with timestamps:
+                    [
+                        {
+                            'fileName' (str): Name of the file,
+                            'timestamp' (str): ISO format timestamp of the file
+                        }
+                    ],
+                'peer_cid_array' (list): Mapping of peers to Content Identifiers (CIDs):
+                    [
+                        {
+                            'peerID' (str): Unique identifier of the peer,
+                            'CID' (str): Content Identifier of the file
+                        }
+                    ]
+            }
+
+    """
+    peers = get_all_peers()["cluster_peers"]
+    all_files = {}
+    unique_files = {}
+    
+    stats = {
+        'peers_count': len(peers),
+        'files_count': 0,
+        'file_types': {
+            'videos': 0,
+            'photos': 0,
+            'others': 0
+        },
+        'files_with_timestamp': [],
+        'peer_cid_array': []
+    }
+    for peer in peers:
+        all_files[peer] = get_other_peer_file_structure(peer)
+    unique_peer_ids = set()
+
+    for peer_id, files in all_files.items():
+        if files:
+            for cid, file_info in files.items():
+                cid_data = kv.get_kv(cid)
+                
+                if cid not in unique_files and cid_data and cid_data != "{}":
+                    file_name = file_info.get('file_name', '')
+                    
+                    file_type = get_file_type(file_name)
+                    stats['file_types'][file_type + 's'] += 1
+
+                    file_entry = {
+                        'peerID': peer_id,
+                        'fileName': file_name,
+                        'fileSize': file_info.get('file_size'),
+                        'CID': cid,
+                        'fileType': file_type
+                    }
+                    
+                    unique_files[cid] = file_entry
+
+                    stats['files_with_timestamp'].append({
+                        'fileName': file_name,
+                        'timestamp': file_info.get('timestamp',datetime.now().isoformat())
+                    })
+
+                    stats['peer_cid_array'].append({
+                        'peerID': peer_id,
+                        'CID': cid
+                    })
+
+                    unique_peer_ids.add(peer_id)
+
+    stats['peers_count'] = len(unique_peer_ids)
+    
+    stats['files_count'] = len(unique_files)
+
+    return stats
+
+
+def get_file_type(filename):
+    """
+    Determine the type of file based on its extension.
+    
+    Args:
+        filename (str): Name of the file
+    
+    Returns:
+        str: Type of file (video, photo, other)
+    """
+    mime_type, _ = mimetypes.guess_type(filename)
+    
+    if mime_type:
+        if mime_type.startswith('video/'):
+            return 'video'
+        elif mime_type.startswith('image/'):
+            return 'photo'
+    
+    return 'other'
     
