@@ -442,10 +442,23 @@ def delete_file(cid:str) -> str:
             del delete_file_structure[cid]
             
             kv.set_kv(cid, json.dumps(delete_file_structure))
+            file_structure = kv.get_kv(my_ipfs_cluster_id)
             
-            print(f"Successfully deleted file with CID {cid}")
-            return "File deleted successfully"
+            try:
+                peer_file_structure = json.loads(file_structure) if file_structure else {}
+                
+                if cid in peer_file_structure:
+                    del peer_file_structure[cid]
+                
+                kv.set_kv(my_ipfs_cluster_id, json.dumps(peer_file_structure))
+                
+                print(f"Successfully deleted file with CID {cid}")
+                return "File deleted successfully"
             
+            except json.JSONDecodeError:
+                print("Error parsing peer file structure")
+                return "Partial deletion: File removed from cluster, but local structure update failed"
+
         except Exception as e:
             return f"Error deleting file: {str(e)}"
     else:
