@@ -37,7 +37,7 @@ def upload_file(file_path: str):
         my_file_structure = {}
 
     # Generate metadata of this file
-    new_file_info = {'file_name': os.path.basename(file_path), 'file_size': os.path.getsize(file_path), 'timestamp': datetime.now().strftime("%Y-%m-%d-%H:%M:%S")}
+    new_file_info = {'file_name': os.path.basename(file_path), 'file_size': os.path.getsize(file_path), 'timestamp': datetime.now().strftime("%Y-%m-%d")}
 
     # Send to IPFS cluster and get CID
     cid = ipfs.add_file_to_cluster(file_path)
@@ -540,7 +540,7 @@ def fetch_dashboard_data():
 
                     stats['files_with_timestamp'].append({
                         'fileName': file_name,
-                        'timestamp': file_info.get('timestamp',datetime.now().isoformat())
+                        'timestamp': file_info.get('timestamp',datetime.now().strftime("%Y-%m-%d"))
                     })
 
                     stats['peer_cid_array'].append({
