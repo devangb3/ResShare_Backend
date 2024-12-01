@@ -7,11 +7,48 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+# @app.route('/upload', methods=['POST'])
+# def upload_file():
+#     file_path = request.json.get('file_path')
+#     client.upload_file(file_path)
+#     return jsonify({"status": "File uploaded successfully"}), 200
+
+# Temporary folder to save files
+TEMP_UPLOAD_FOLDER = "temp_uploads"
+os.makedirs(TEMP_UPLOAD_FOLDER, exist_ok=True)
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    file_path = request.json.get('file_path')
-    client.upload_file(file_path)
-    return jsonify({"status": "File uploaded successfully"}), 200
+    try:
+        # Check if a file is part of the request
+        if 'files' in request.files:
+            uploaded_file = request.files['files']
+
+            # Save the file temporarily
+            temp_path = os.path.join(TEMP_UPLOAD_FOLDER, uploaded_file.filename)
+            uploaded_file.save(temp_path)
+
+            # Simulate processing the file via its temporary path
+            client.upload_file(temp_path)
+
+            # Remove the temporary file
+            os.remove(temp_path)
+            return jsonify({"status": "File uploaded successfully", "temp_path": temp_path}), 200
+
+        # If no file, check for a file path in JSON data
+        elif request.json and 'file_path' in request.json:
+            file_path = request.json.get('file_path')
+            client.upload_file(file_path)
+            return jsonify({"status": "File uploaded successfully"}), 200
+
+        # If neither file nor path is provided, return an error
+        else:
+            return jsonify({"error": "No file or file path provided"}), 400
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+        
 
 @app.route('/download', methods=['POST'])
 def download_file():
