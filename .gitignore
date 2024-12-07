@@ -1,1 +1,10 @@
-node_modules
+bazel/bazel-*
+bazel/MODULE.bazel
+bazel/MODULE.bazel.lock
+.ijwb
+.vscode
+.idea
+__pycache__/
+__pycache__
+temp/
+venv/
