@@ -1,0 +1,4 @@
+pybind11
+requests
+Flask
+flask_cors

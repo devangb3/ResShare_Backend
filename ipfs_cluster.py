@@ -102,11 +102,15 @@ def download_file_from_ipfs(cid, save_path):
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
             print(f"File downloaded successfully and saved to {save_path}")
+            return {"success": True, "message": f"File downloaded successfully and saved to {save_path}"}
         else:
-            print(f"Failed to download file. Status code: {response.status_code}")
-            print(response.text)
+            error_message = f"Failed to download file. Status code: {response.status_code}. Response: {response.text}"
+            print(error_message)
+            return {"success": False, "message": error_message}
     except requests.exceptions.RequestException as e:
-        print(f"Error downloading file from IPFS: {e}")
+        error_message = f"Error downloading file from IPFS: {e}"
+        print(error_message)
+        return {"success": False, "message": error_message}
 
 
 def list_pinned_files():
@@ -177,3 +181,78 @@ def get_my_peer_id():
 
 
 
+def get_peer_name(peer_id):
+    """
+    Fetch the peer name of a specific peer by its ID.
+
+    :param api_url: The base URL of the IPFS Cluster API.
+    :param peer_id: The peer ID of the target node.
+    :return: The peer name if found, otherwise None.
+    """
+    url = f"{ipfs_cluster_api_url}/peers"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            peers = response.json()
+            for peer in peers:
+                if peer["id"] == peer_id:
+                    return peer.get("peername", "Unknown Peername")
+            print(f"Peer ID {peer_id} not found in the cluster.")
+        else:
+            print(f"Failed to fetch peers. Status code: {response.status_code}")
+            print(response.text)
+    except Exception as e:
+        print(f"Error fetching peername: {e}")
+    return None
+def remove_file_from_cluster(cid):
+    """
+    Removes a file from the IPFS Cluster.
+
+    :param cid: The CID of the file to be removed.
+    :return: True if the file is successfully removed, otherwise False.
+    """
+    if ipfs_cluster_api_url is None or ipfs_gateway_url is None:
+        read_config_file()
+
+    verify_url = f"{ipfs_cluster_api_url}/pins/{cid}"
+    headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    verify_response = requests.get(verify_url, headers=headers)
+    
+    if verify_response.status_code == 404:
+        print(f"CID {cid} not found in cluster")
+        return False
+
+    url = f"{ipfs_cluster_api_url}pins/{cid}"
+    try:
+        
+        response = requests.delete(url, headers=headers)
+        if response.status_code == 200:
+            print(f"File with CID {cid} successfully removed from IPFS Cluster.")
+            trigger_gc_on_nodes()
+            print(f"File with CID {cid} successfully deleted from IPFS Cluster.")
+            return True
+        else:
+            print(f"Failed to remove file with CID {cid}. Status code: {response.status_code}")
+            print(response.text)
+            return False
+    except requests.exceptions.RequestException as e:
+        print(f"Error removing file from IPFS Cluster: {e}")
+        return False
+    
+def trigger_gc_on_nodes():
+    if ipfs_cluster_api_url is None or ipfs_gateway_url is None:
+        read_config_file()
+    
+    gc_url = f"{ipfs_cluster_api_url}ipfs/gc?local=false"
+    try:
+        response = requests.post(gc_url)
+        if response.status_code == 200:
+            print("Garbage collection successfully triggered.")
+        else:
+            print(f"Failed to trigger GC. Status code: {response.status_code}")
+            print(response.text)
+    except requests.exceptions.RequestException as e:
+        print(f"Error triggering garbage collection: {e}")
