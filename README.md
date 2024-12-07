@@ -56,10 +56,10 @@ OR
 python3 controller.py
 ## Testing
 
-1) Upload a file : curl -X POST http://localhost:5000/upload -H "Content-Type: application/json" -d '{"file_path": "/home/devang/Project/test"}'
+1) Upload a file : curl -X POST http://localhost:5000/upload -H "Content-Type: application/json" -d '{"file_path": "/home/...."}'
 2) Get All peers : curl -X GET http://localhost:5000/peers
 3) Get file stauts: curl -X GET http://localhost:5000/file_status/QmeomffUNfmQy76CQGy9NdmqEnnHU9soCexBnGU3ezPHVH
-4) Download a file: curl -X POST http://localhost:5000/download -H "Content-Type: application/json" -d '{"cid": "QmeomffUNfmQy76CQGy9NdmqEnnHU9soCexBnGU3ezPHVH", "file_path": "/home/devang/Project/jaadu"}'
+4) Download a file: curl -X POST http://localhost:5000/download -H "Content-Type: application/json" -d '{"cid": "QmeomffUNfmQy76CQGy9NdmqEnnHU9soCexBnGU3ezPHVH", "file_path": "/home/...."}'
 5) Get other peer's file structure : curl -X GET http://localhost:5000/peer_files/12D3KooWEH7HALhJhEHY6RQ1SDrxcbrihM8VBy9vB7Rf6GqRFtSg
 6) Get All files : curl -X GET http://localhost:5000/all_files
 7) Delete file : curl -X POST http://localhost:5000/delete -H "Content-Type: application/json" -d '{"cid": "QmeomffUNfmQy76CQGy9NdmqEnnHU9soCexBnGU3ezPHVH"}'
