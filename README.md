@@ -1,7 +1,7 @@
 # ResShare_Backend
 
 This is the backend for the ResShare application.
-
+Setup the Frontend : "https://github.com/devangb3/ResShare-Frontend"
 ## Prerequisites
 
 ### GCC and G++
